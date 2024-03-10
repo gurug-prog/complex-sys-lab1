@@ -25,6 +25,10 @@ namespace Complex_Systems_Lab1
 
         // Synchronization objects
         private static readonly object aCalculating = new object();
+#if !NO_LOCK_ASSIGNMENT
+        private static readonly object dAssigning = new object();
+        private static readonly object maAssigning = new object();
+#endif
 
         private static readonly EventWaitHandle dVectorReady =
             new EventWaitHandle(false, EventResetMode.ManualReset);
@@ -69,10 +73,24 @@ namespace Complex_Systems_Lab1
             // Formula 1: D = В * (МE + MZ) - E * (MM + МE)
             for (int j = 0; j < H; j++)
             {
+                double sum = 0.0;
+                double c = 0.0;
                 for (int i = 0; i < N; i++)
                 {
-                    D[j] += B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]);
+                    double y = B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]) - c;
+                    double t = sum + y;
+                    c = t - sum - y;
+                    sum = t;
                 }
+
+#if NO_LOCK_ASSIGNMENT
+                D[j] = sum;
+#else
+                lock (dAssigning)
+                {
+                    D[j] = sum;
+                }
+#endif
             }
 
             // Waiting for D vector to output
@@ -86,14 +104,14 @@ namespace Complex_Systems_Lab1
 
             // Formula 2: MА = min(MM) * (ME + MZ) - ME * MM
             // ai = min(MMH)
-            double ai = MM[0, H];
+            double ai = MM[0, 0];
             for (int i = 0; i < H; i++)
             {
                 for (int j = 0; j < N; j++)
                 {
-                    if (MM[i, j] < ai)
+                    if (MM[i, j] < a)
                     {
-                        ai = MM[i, j];
+                        a = MM[i, j];
                     }
                 }
             }
@@ -110,16 +128,29 @@ namespace Complex_Systems_Lab1
             a1Ready.Set();
             a2Ready.WaitOne();
 
+            // MAH = a * (MEH + MZH) - ME * MMH
             for (int i = 0; i < N; i++)
             {
                 for (int j = 0; j < H; j++)
                 {
-                    MA[i, j] = a * (ME[i, j] + MZ[i, j]);
-
+                    double sum = a * (ME[i, j] + MZ[i, j]);
+                    double c = 0.0;
                     for (int k = 0; k < N; k++)
                     {
-                        MA[i, j] -= ME[i, k] * MM[k, j];
+                        double y = -ME[i, k] * MM[k, j] - c;
+                        double t = sum + y;
+                        c = t - sum - y;
+                        sum = t;
                     }
+
+#if NO_LOCK_ASSIGNMENT
+                    MA[i, j] = sum;
+#else
+                    lock (maAssigning)
+                    {
+                        MA[i, j] = sum;
+                    }
+#endif
                 }
             }
 
@@ -132,10 +163,24 @@ namespace Complex_Systems_Lab1
             // Formula 1: D = В * (МE + MZ) - E * (MM + МE)
             for (int j = H; j < 2 * H; j++)
             {
+                double sum = 0.0;
+                double c = 0.0;
                 for (int i = 0; i < N; i++)
                 {
-                    D[j] += B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]);
+                    double y = B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]) - c;
+                    double t = sum + y;
+                    c = t - sum - y;
+                    sum = t;
                 }
+
+#if NO_LOCK_ASSIGNMENT
+                D[j] = sum;
+#else
+                lock (dAssigning)
+                {
+                    D[j] = sum;
+                }
+#endif
             }
 
             // Signal: Vector D ready for output
@@ -149,9 +194,9 @@ namespace Complex_Systems_Lab1
             {
                 for (int j = 0; j < N; j++)
                 {
-                    if (MM[i, j] < ai)
+                    if (MM[i, j] < a)
                     {
-                        ai = MM[i, j];
+                        a = MM[i, j];
                     }
                 }
             }
@@ -168,16 +213,29 @@ namespace Complex_Systems_Lab1
             a2Ready.Set();
             a1Ready.WaitOne();
 
+            // MAH = a * (MEH + MZH) - ME * MMH
             for (int i = 0; i < N; i++)
             {
                 for (int j = H; j < 2 * H; j++)
                 {
-                    MA[i, j] = a * (ME[i, j] + MZ[i, j]);
-
+                    double sum = a * (ME[i, j] + MZ[i, j]);
+                    double c = 0.0;
                     for (int k = 0; k < N; k++)
                     {
-                        MA[i, j] -= ME[i, k] * MM[k, j];
+                        double y = -ME[i, k] * MM[k, j] - c;
+                        double t = sum + y;
+                        c = t - sum - y;
+                        sum = t;
                     }
+
+#if NO_LOCK_ASSIGNMENT
+                    MA[i, j] = sum;
+#else
+                    lock (maAssigning)
+                    {
+                        MA[i, j] = sum;
+                    }
+#endif
                 }
             }
 

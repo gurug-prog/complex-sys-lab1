@@ -52,10 +52,17 @@ namespace Complex_Systems_Lab1
             double[] D = new double[N];
             for (int j = 0; j < N; j++)
             {
+                double sum = 0.0;
+                double c = 0.0;
                 for (int i = 0; i < N; i++)
                 {
-                    D[j] += B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]);
+                    double y = B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]) - c;
+                    double t = sum + y;
+                    c = t - sum - y;
+                    sum = t;
                 }
+
+                D[j] = sum;
             }
 
             // T1 result output
@@ -86,12 +93,17 @@ namespace Complex_Systems_Lab1
             {
                 for (int j = 0; j < N; j++)
                 {
-                    MA[i, j] = a * (ME[i, j] + MZ[i, j]);
-
+                    double sum = a * (ME[i, j] + MZ[i, j]);
+                    double c = 0.0;
                     for (int k = 0; k < N; k++)
                     {
-                        MA[i, j] -= ME[i, k] * MM[k, j];
+                        double y = -ME[i, k] * MM[k, j] - c;
+                        double t = sum + y;
+                        c = t - sum - y;
+                        sum = t;
                     }
+
+                    MA[i, j] = sum;
                 }
             }
 

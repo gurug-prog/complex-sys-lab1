@@ -6,6 +6,7 @@
     <RootNamespace>compex_sys_lab1</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- <DefineConstants>NO_LOCK_ASSIGNMENT</DefineConstants> -->
   </PropertyGroup>
 
 </Project>
