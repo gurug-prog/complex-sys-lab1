@@ -52,7 +52,6 @@ namespace Complex_Systems_Lab1
                 DataSerializer.WriteMatrix("ME.txt", ME);
                 DataSerializer.WriteMatrix("MM.txt", MM);
                 DataSerializer.WriteMatrix("MZ.txt", MZ);
-
             }
             else
             {
@@ -68,27 +67,11 @@ namespace Complex_Systems_Lab1
         private static void Thread1Func()
         {
             // Formula 1: D = В * (МE + MZ) - E * (MM + МE)
-
-            // MLH = МEH + MZH
-            // MPH = MMH + МEH
-            double[,] MLH = new double[N, H];
-            double[,] MPH = new double[N, H];
-
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = 0; j < H; j++)
-                {
-                    MLH[i, j] = ME[i, j] + MZ[i, j];
-                    MPH[i, j] = MM[i, j] + ME[i, j];
-                }
-            }
-
-            // DH = B * MLH - E * MPH
             for (int j = 0; j < H; j++)
             {
                 for (int i = 0; i < N; i++)
                 {
-                    D[j] += B[i] * MLH[i, j] - E[i] * MPH[i, j];
+                    D[j] += B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]);
                 }
             }
 
@@ -101,18 +84,16 @@ namespace Complex_Systems_Lab1
             Console.WriteLine(Environment.NewLine);
 
 
-
             // Formula 2: MА = min(MM) * (ME + MZ) - ME * MM
-
             // ai = min(MMH)
-            double ai = MM[0, 0];
+            double ai = MM[0, H];
             for (int i = 0; i < H; i++)
             {
                 for (int j = 0; j < N; j++)
                 {
-                    if (MM[i, j] < a)
+                    if (MM[i, j] < ai)
                     {
-                        a = MM[i, j];
+                        ai = MM[i, j];
                     }
                 }
             }
@@ -129,30 +110,16 @@ namespace Complex_Systems_Lab1
             a1Ready.Set();
             a2Ready.WaitOne();
 
-            // MKH = a * (MEH + MZH)
-            // MNH = MEH * MMH
-            double[,] MKH = new double[N, H];
-            double[,] MNH = new double[N, H];
-
             for (int i = 0; i < N; i++)
             {
                 for (int j = 0; j < H; j++)
                 {
-                    MKH[i, j] = a * (ME[i, j] + MZ[i, j]);
+                    MA[i, j] = a * (ME[i, j] + MZ[i, j]);
 
                     for (int k = 0; k < N; k++)
                     {
-                        MNH[i, j] += ME[i, k] * MM[k, j];
+                        MA[i, j] -= ME[i, k] * MM[k, j];
                     }
-                }
-            }
-
-            // MAH = MKH - MNH
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = 0; j < H; j++)
-                {
-                    MA[i, j] = MKH[i, j] - MNH[i, j];
                 }
             }
 
@@ -163,27 +130,11 @@ namespace Complex_Systems_Lab1
         private static void Thread2Func()
         {
             // Formula 1: D = В * (МE + MZ) - E * (MM + МE)
-
-            // ML = МE + MZ
-            // MP = MM + МE
-            double[,] MLH = new double[N, H];
-            double[,] MPH = new double[N, H];
-
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = H; j < 2 * H; j++)
-                {
-                    MLH[i, j - H] = ME[i, j] + MZ[i, j];
-                    MPH[i, j - H] = MM[i, j] + ME[i, j];
-                }
-            }
-
-            // D = B * ML - E * MP
             for (int j = H; j < 2 * H; j++)
             {
                 for (int i = 0; i < N; i++)
                 {
-                    D[j] += B[i] * MLH[i, j - H] - E[i] * MPH[i, j - H];
+                    D[j] += B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]);
                 }
             }
 
@@ -191,18 +142,16 @@ namespace Complex_Systems_Lab1
             dVectorReady.Set();
 
 
-
             // Formula 2: MА = min(MM) * (ME + MZ) - ME * MM
-
             // ai = min(MMH)
             double ai = MM[H, 0];
             for (int i = H; i < 2 * H; i++)
             {
                 for (int j = 0; j < N; j++)
                 {
-                    if (MM[i, j] < a)
+                    if (MM[i, j] < ai)
                     {
-                        a = MM[i, j];
+                        ai = MM[i, j];
                     }
                 }
             }
@@ -219,30 +168,16 @@ namespace Complex_Systems_Lab1
             a2Ready.Set();
             a1Ready.WaitOne();
 
-            // MKH = a * (MEH + MZH)
-            // MNH = MEH * MMH
-            double[,] MKH = new double[N, H];
-            double[,] MNH = new double[N, H];
-
             for (int i = 0; i < N; i++)
             {
                 for (int j = H; j < 2 * H; j++)
                 {
-                    MKH[i, j - H] = a * (ME[i, j] + MZ[i, j]);
+                    MA[i, j] = a * (ME[i, j] + MZ[i, j]);
 
                     for (int k = 0; k < N; k++)
                     {
-                        MNH[i, j - H] += ME[i, k] * MM[k, j];
+                        MA[i, j] -= ME[i, k] * MM[k, j];
                     }
-                }
-            }
-
-            // MAH = MKH - MNH
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = H; j < 2 * H; j++)
-                {
-                    MA[i, j] = MKH[i, j - H] - MNH[i, j - H];
                 }
             }
 

@@ -49,28 +49,12 @@ namespace Complex_Systems_Lab1
         // Formula 1: D = В * (МE + MZ) - E * (MM + МE)
         private static void Thread1Func()
         {
-            // ML = МE + MZ
-            // MP = MM + МE
-            double[,] ML = new double[N, N];
-            double[,] MP = new double[N, N];
-
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = 0; j < N; j++)
-                {
-                    ML[i, j] = ME[i, j] + MZ[i, j];
-                    MP[i, j] = MM[i, j] + ME[i, j];
-                }
-            }
-
-            // D = B * ML - E * MP
             double[] D = new double[N];
-
             for (int j = 0; j < N; j++)
             {
                 for (int i = 0; i < N; i++)
                 {
-                    D[j] += B[i] * ML[i, j] - E[i] * MP[i, j];
+                    D[j] += B[i] * (ME[i, j] + MZ[i, j]) - E[i] * (MM[i, j] + ME[i, j]);
                 }
             }
 
@@ -96,31 +80,18 @@ namespace Complex_Systems_Lab1
                 }
             }
 
-            // MK = a * (ME + MZ)
-            // MN = ME * MM
-            double[,] MK = new double[N, N];
-            double[,] MN = new double[N, N];
-
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = 0; j < N; j++)
-                {
-                    MK[i, j] = a * (ME[i, j] + MZ[i, j]);
-
-                    for (int k = 0; k < N; k++)
-                    {
-                        MN[i, j] += ME[i, k] * MM[k, j];
-                    }
-                }
-            }
-
-            // MA = MK - MN
+            // MA = a * (ME + MZ) - ME * MM
             double[,] MA = new double[N, N];
             for (int i = 0; i < N; i++)
             {
                 for (int j = 0; j < N; j++)
                 {
-                    MA[i, j] = MK[i, j] - MN[i, j];
+                    MA[i, j] = a * (ME[i, j] + MZ[i, j]);
+
+                    for (int k = 0; k < N; k++)
+                    {
+                        MA[i, j] -= ME[i, k] * MM[k, j];
+                    }
                 }
             }
 
